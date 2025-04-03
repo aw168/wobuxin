@@ -5,7 +5,7 @@ name: Unzip file to root directory and push changes
 on:
   push:
     branches:
-      - main  # 替换为你的分支名称（如 main）
+      - main  # 根据需要替换为你的分支名称
 
 jobs:
   unzip_file:
@@ -28,7 +28,7 @@ jobs:
         run: |
           echo "Creating a temporary directory for unzipping..."
           mkdir temp_unzip
-
+          
           echo "Unzipping typecho (1).zip into temporary directory..."
           unzip "typecho (1).zip" -d temp_unzip
 

@@ -1,0 +1,27 @@
+# .github/workflows/unzip.yml
+
+name: Unzip file to root directory
+
+on:
+  push:
+    branches:
+      - main  # 可根据需要更改分支名称
+
+jobs:
+  unzip_file:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3  # 使用 GitHub Actions 的最新版本
+
+      - name: Unzip file to root directory
+        run: |
+          # 检查 typecho (1).zip 是否存在
+          if [ -f "typecho (1).zip" ]; then
+            # 解压文件到当前目录（根目录）
+            unzip "typecho (1).zip" -d .
+          else
+            echo "Error: typecho (1).zip not found in the repository."
+            exit 1  # 如果文件不存在，则终止操作并报告错误
+          fi

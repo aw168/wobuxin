@@ -1,11 +1,11 @@
 # .github/workflows/unzip_to_root.yml
 
-name: Unzip file to root directory and sync
+name: Unzip file to root directory and push changes
 
 on:
   push:
     branches:
-      - main  # 替换为你使用的分支名称
+      - main  # 替换为你的分支名称（如 main）
 
 jobs:
   unzip_file:
@@ -15,20 +15,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # 拉取完整代码库历史
+          fetch-depth: 0  # 确保完整拉取代码库历史
 
-      - name: Print working directory and list initial files
+      - name: Print working directory and list files
         run: |
-          echo "Current directory:"
+          echo "Current working directory:"
           pwd
-          echo "Files before unzip:"
+          echo "Files in the repository before unzip:"
           ls -al
 
       - name: Unzip typecho (1).zip and move files to root
         run: |
-          echo "Creating temporary directory for unzip..."
+          echo "Creating a temporary directory for unzipping..."
           mkdir temp_unzip
-          
+
           echo "Unzipping typecho (1).zip into temporary directory..."
           unzip "typecho (1).zip" -d temp_unzip
 
@@ -38,20 +38,24 @@ jobs:
           echo "Cleaning up temporary directory..."
           rm -rf temp_unzip
 
-          echo "Files after unzip and move:"
+          echo "Files in the repository after unzipping and moving:"
           ls -al
 
-      - name: Commit and push changes (if any)
+      - name: Commit and push changes
+        env:
+          TOKEN: ${{ secrets.GH_TOKEN }}  # 使用存储的 Personal Access Token
         run: |
           git config --global user.name 'GitHub Actions Bot'
           git config --global user.email 'actions@github.com'
 
-          # 检查变动并提交
+          echo "Checking for changes..."
+          git add .
+
+          # 检查是否有需要提交的变动
           if [[ -n $(git status --porcelain) ]]; then
-            echo "Changes detected. Committing and pushing..."
-            git add .
-            git commit -m "Unzipped typecho (1).zip to root directory [skip ci]"
-            git push origin ${{ github.ref_name }}
+            echo "Changes detected. Committing and pushing changes..."
+            git commit -m "Auto-unzipped typecho (1).zip to root directory [skip ci]"
+            git push https://x-access-token:${TOKEN}@github.com/aw168/wobuxin.git ${{ github.ref_name }}
           else
-            echo "No changes to commit."
+            echo "No changes detected. Nothing to commit."
           fi

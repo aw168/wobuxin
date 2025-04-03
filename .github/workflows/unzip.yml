@@ -5,7 +5,7 @@ name: Debug Unzip File to Root Directory
 on:
   push:
     branches:
-      - main  # 可根据需要更改分支名称
+      - main  # 根据需要修改分支名称
 
 jobs:
   unzip_file:
@@ -14,25 +14,27 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3  # 拉取代码库
+        with:
+          fetch-depth: 0  # 确保完整拉取，避免文件丢失
 
-      - name: Print working directory
-        run: pwd  # 打印当前工作目录，确认文件解压路径
-
-      - name: List files in current directory
-        run: ls -al  # 列出当前目录文件，检查压缩包是否存在
+      - name: Verify file existence in root directory
+        run: |
+          echo "Checking if typecho (1).zip exists..."
+          ls -al
+          if [ -f "typecho (1).zip" ]; then
+            echo "File found: typecho (1).zip"
+          else
+            echo "Error: typecho (1).zip not found!"
+            exit 1
+          fi
 
       - name: Unzip typecho (1).zip to root directory
         run: |
-          # 检查 typecho (1).zip 是否存在
-          if [ -f "typecho (1).zip" ]; then
-            echo "Found typecho (1).zip. Proceeding with unzipping..."
-            # 解压文件到当前目录（根目录）
-            unzip "typecho (1).zip" -d .
-            echo "Unzipping completed."
-          else
-            echo "Error: typecho (1).zip not found in the repository root directory."
-            exit 1  # 如果文件不存在，则终止工作流并报告错误
-          fi
+          echo "Unzipping file..."
+          unzip "typecho (1).zip" -d .
+          echo "Unzip completed."
 
-      - name: Verify unzipped content
-        run: ls -al  # 再次列出文件，确认解压后的内容是否存在
+      - name: List files after unzipping
+        run: |
+          echo "Contents of the directory after unzipping:"
+          ls -al

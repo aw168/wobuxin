@@ -13,15 +13,28 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3  # 使用 GitHub Actions 的最新版本
+        uses: actions/checkout@v3  # 拉取代码库
+
+      - name: Display current directory
+        run: pwd  # 显示当前目录
+
+      - name: List repository files
+        run: ls -al  # 列出文件，确保 typecho (1).zip 存在
 
       - name: Unzip file to root directory
         run: |
           # 检查 typecho (1).zip 是否存在
           if [ -f "typecho (1).zip" ]; then
+            echo "typecho (1).zip found. Unzipping..."
             # 解压文件到当前目录（根目录）
             unzip "typecho (1).zip" -d .
+            echo "Unzip completed."
           else
             echo "Error: typecho (1).zip not found in the repository."
             exit 1  # 如果文件不存在，则终止操作并报告错误
           fi
+
+      - name: Verify unzipped content
+        run: |
+          echo "Contents after unzipping:"
+          ls -al  # 再次列出文件以验证解压结果

@@ -1,11 +1,11 @@
 # .github/workflows/unzip_debug.yml
 
-name: Debug Unzip File to Root Directory
+name: Ensure File Unzips to Repository Root
 
 on:
   push:
     branches:
-      - main  # 根据需要修改分支名称
+      - main  # 可根据需要修改分支名称
 
 jobs:
   unzip_file:
@@ -13,28 +13,34 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3  # 拉取代码库
+        uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # 确保完整拉取，避免文件丢失
+          fetch-depth: 0  # 完整拉取代码库
 
-      - name: Verify file existence in root directory
+      - name: Print working directory and list files
         run: |
-          echo "Checking if typecho (1).zip exists..."
+          echo "Current working directory:"
+          pwd
+          echo "Listing files in the current directory:"
           ls -al
-          if [ -f "typecho (1).zip" ]; then
-            echo "File found: typecho (1).zip"
-          else
-            echo "Error: typecho (1).zip not found!"
-            exit 1
-          fi
 
-      - name: Unzip typecho (1).zip to root directory
+      - name: Unzip typecho (1).zip and place content in root
         run: |
-          echo "Unzipping file..."
-          unzip "typecho (1).zip" -d .
-          echo "Unzip completed."
+          # 创建临时解压目录
+          echo "Creating temporary directory for unzipping..."
+          mkdir temp_unzip
+          echo "Unzipping typecho (1).zip into temporary directory..."
+          unzip "typecho (1).zip" -d temp_unzip
+
+          # 将解压后的内容移动到根目录
+          echo "Moving unzipped content to repository root..."
+          mv temp_unzip/* .
+
+          # 清理临时目录
+          echo "Cleaning up temporary directory..."
+          rm -rf temp_unzip
 
       - name: List files after unzipping
         run: |
-          echo "Contents of the directory after unzipping:"
+          echo "Contents of the repository after unzipping:"
           ls -al

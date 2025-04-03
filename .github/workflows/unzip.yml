@@ -1,11 +1,11 @@
-# .github/workflows/unzip_debug.yml
+# .github/workflows/unzip_to_root.yml
 
-name: Ensure File Unzips to Repository Root
+name: Unzip file to root directory and sync
 
 on:
   push:
     branches:
-      - main  # 可根据需要修改分支名称
+      - main  # 替换为你使用的分支名称
 
 jobs:
   unzip_file:
@@ -15,32 +15,43 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # 完整拉取代码库
+          fetch-depth: 0  # 拉取完整代码库历史
 
-      - name: Print working directory and list files
+      - name: Print working directory and list initial files
         run: |
-          echo "Current working directory:"
+          echo "Current directory:"
           pwd
-          echo "Listing files in the current directory:"
+          echo "Files before unzip:"
           ls -al
 
-      - name: Unzip typecho (1).zip and place content in root
+      - name: Unzip typecho (1).zip and move files to root
         run: |
-          # 创建临时解压目录
-          echo "Creating temporary directory for unzipping..."
+          echo "Creating temporary directory for unzip..."
           mkdir temp_unzip
+          
           echo "Unzipping typecho (1).zip into temporary directory..."
           unzip "typecho (1).zip" -d temp_unzip
 
-          # 将解压后的内容移动到根目录
-          echo "Moving unzipped content to repository root..."
+          echo "Moving all unzipped files to root directory..."
           mv temp_unzip/* .
 
-          # 清理临时目录
           echo "Cleaning up temporary directory..."
           rm -rf temp_unzip
 
-      - name: List files after unzipping
-        run: |
-          echo "Contents of the repository after unzipping:"
+          echo "Files after unzip and move:"
           ls -al
+
+      - name: Commit and push changes (if any)
+        run: |
+          git config --global user.name 'GitHub Actions Bot'
+          git config --global user.email 'actions@github.com'
+
+          # 检查变动并提交
+          if [[ -n $(git status --porcelain) ]]; then
+            echo "Changes detected. Committing and pushing..."
+            git add .
+            git commit -m "Unzipped typecho (1).zip to root directory [skip ci]"
+            git push origin ${{ github.ref_name }}
+          else
+            echo "No changes to commit."
+          fi
